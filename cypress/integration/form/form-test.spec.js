@@ -5,7 +5,7 @@ describe('form completion and validation test', () => {
       .should('eq', 'https://demoqa.com/automation-practice-form')
   })
 
-  it('fills out the form', () => {
+  it.skip('fills out the form', () => {
     const resumePdf = 'hriley_resume.pdf'
     
     cy.get('form').within(() => {
@@ -61,7 +61,7 @@ describe('form completion and validation test', () => {
       }).screenshot('form-completed')
   })
 
-  it('verifies the form', () => {
+  it.skip('verifies the form', () => {
     cy.get('.modal-dialog').within(() => {
       cy.get('.modal-title')
         .should('have.text', 'Thanks for submitting the form')
@@ -112,6 +112,43 @@ describe('form error handling', () => {
       cy.get('input[id="firstName"]')
         .click()
         .type('Hannah')
-    })
+        .type('{enter}')
+        .type('{enter}')
+    }).should('have.class', 'was-validated')
+
+    cy.get('form').within(() => {
+      cy.get('input[id="lastName"]')
+        .click()
+        .type('Riley')
+        .type('{enter}')
+        .type('{enter}')
+    }).should('have.class', 'was-validated')
+
+    cy.get('form').within(() => {
+      cy.get('input[id="userEmail"]')
+        .click()
+        .type('riley.hannahm@gmail.com')
+        .type('{enter}')
+    }).should('have.class', 'was-validated')
+
+    cy.get('form').within(() => {
+      cy.get('[type="radio"]')
+        .check("Female", { force: true })      
+        .should('have.id', 'gender-radio-2')
+        .should('have.class', 'custom-control-input') 
+    }).should('have.class', 'was-validated')
+//delete email 
+  cy.get('form').within(() => {
+    cy.get('input[id="userEmail"]')
+      .click()
+      .type('{selectAll}')
+      .type('{del}')
+
+    cy.get('input[id="userNumber"]')
+      .click()
+      .type('6508041083')
+      .type('{enter}')
+})
+    
   })
 })
