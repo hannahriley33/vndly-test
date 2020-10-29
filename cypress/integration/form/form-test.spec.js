@@ -4,7 +4,7 @@ describe('form completion and validation test', () => {
     cy.url()
       .should('eq', 'https://demoqa.com/automation-practice-form')
   })
-  
+
   it('fills out the form', () => {
     const resumePdf = 'hriley_resume.pdf'
     
@@ -50,6 +50,8 @@ describe('form completion and validation test', () => {
       cy.get('#currentAddress')
         .click()
         .type('123 Main St')
+
+
       
       cy.get('#uploadPicture').attachFile(resumePdf)
         
@@ -95,6 +97,21 @@ describe('form completion and validation test', () => {
             .should('contain', 'Address')
             .should('contain', '123 Main St')
         })
+    })
+  })
+})
+
+describe('form error handling', () => {
+  before(() => {
+    cy.visit('https://demoqa.com/automation-practice-form')
+    cy.url()
+      .should('eq', 'https://demoqa.com/automation-practice-form')
+  })
+  it('verifies all mandatory fields were completed before submission', () => {
+    cy.get('form').within(() => {
+      cy.get('input[id="firstName"]')
+        .click()
+        .type('Hannah')
     })
   })
 })
