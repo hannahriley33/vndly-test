@@ -1,25 +1,22 @@
-describe('form test', () => {
-  //think about this it statement
-  it('users should be able to fill out form and grab screenshot', () => {
-    const resumePic = 'hriley_resume.pdf'
+describe('form completion and validation test', () => {
+  before(() => {
+    cy.visit('https://demoqa.com/automation-practice-form')
+    cy.url()
+      .should('eq', 'https://demoqa.com/automation-practice-form')
+  })
+  
+  it('fills out the form', () => {
+    const resumePdf = 'hriley_resume.pdf'
     
-    before(() => {
-      cy.visit('https://demoqa.com/automation-practice-form')
-      cy.url().should('eq', 'https://demoqa.com/automation-practice-form')
-    })
-
     cy.get('form').within(() => {
-      //cypress best practices say not to grab by id.
-        //should('have.text', 'First Name') doesn't work. why??
-        //should I add another assertion here?
       cy.get('input[id="firstName"]')
         .click()
         .type('Hannah')
-        //add assertion here or is this implicit assertion?
+        
       cy.get('input[id="lastName"]')
         .click()
         .type('Riley')
-        //add assertion here?
+      
       cy.get('input[id="userEmail"]')
         .click()
         .type('riley.hannahm@gmail.com')
@@ -37,39 +34,67 @@ describe('form test', () => {
         .click()
         .type('{selectall}')
         .type('01/29/94')
+        .type('{enter}')
 
-      cy.get('.subjects-auto-complete__value-container')
-        .click({force: true})
-        .type('Fun activities')
-      
-      
-        cy.get('input[type="checkbox"]')
+      //bug in form
+      cy.get('input[id="subjectsInput"]')
+        .click()
+        .type('Board games, reading')
+        
+      cy.get('input[type="checkbox"]')
         .should('have.id', 'hobbies-checkbox-1')
         .should('have.value', '1')
         .first()
         .check({force: true})
         
+      cy.get('#currentAddress')
+        .click()
+        .type('123 Main St')
+      
+      cy.get('#uploadPicture').attachFile(resumePdf)
+        
+      cy.contains('Submit')
+        .should('have.class', 'btn-primary')
+        .click()
+      }).screenshot('form-completed')
+  })
 
-        cy.get('#currentAddress')
-          .click()
-          .type('123 Main St')
-
-        cy.get('css-1uccc91-singleValue')
-          .should('have.text', 'Haryana')
-          .click()
-          
-
-        cy.get('#uploadPicture').attachFile(resumePic)
-
-        cy.contains('Submit')
-          .should('have.class', 'btn-primary')
-          .click()
-    })
+  it('verifies the form', () => {
     cy.get('.modal-dialog').within(() => {
       cy.get('.modal-title')
         .should('have.text', 'Thanks for submitting the form')
         .should('have.id', 'example-modal-sizes-title-lg')
       
-    }).screenshot()
+      cy.get('table')
+        .should('have.class', 'table-dark')
+        .should('have.class', 'table-striped').within(() => {
+          cy.get('tr').eq(1)
+            .should('contain', 'Student Name')
+            .should('contain', 'Hannah Riley')
+          cy.get('tr').eq(2)
+            .should('contain', 'Student Email')
+            .should('contain', 'riley.hannahm@gmail.com')
+          cy.get('tr').eq(3)
+            .should('contain', 'Gender')
+            .should('contain', 'Female')
+          cy.get('tr').eq(4)
+            .should('contain', 'Mobile')
+            .should('contain', '6508041083')
+          cy.get('tr').eq(5)
+            .should('contain', 'Date of Birth')
+            .should('contain', '29 January,1994')
+          cy.get('tr').eq(6)
+            .should('contain', 'Subjects')
+          cy.get('tr').eq(7)
+            .should('contain', 'Hobbies')
+            .should('contain', 'Sports')
+          cy.get('tr').eq(8)
+            .should('contain', 'Picture')
+            .should('contain', 'hriley_resume.pdf')
+          cy.get('tr').eq(9)
+            .should('contain', 'Address')
+            .should('contain', '123 Main St')
+        })
+    })
   })
 })
